@@ -1,4 +1,4 @@
-EnhancedListView
+EnhancedListView with bounce to add item
 ================
 
 An Android ListView with enhanced functionality (e.g. Swipe To Dismiss and Undo)
