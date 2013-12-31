@@ -31,9 +31,12 @@ import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 import android.widget.AbsListView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -235,7 +238,7 @@ public class EnhancedListView extends ListView implements AbsListView.OnScrollLi
             resetHeaderPadding();
 
             // Set refresh view text to the pull label
-            mRefreshViewText.setText("tup tu rufrush");
+            mRefreshViewText.setText("Tap to add item");
             // Replace refresh drawable with arrow drawable
             mRefreshViewImage.setImageResource(R.drawable.ic_action_undo);
             // Clear the full rotation animation
@@ -286,7 +289,7 @@ public class EnhancedListView extends ListView implements AbsListView.OnScrollLi
 
                 } else if (mRefreshView.getBottom() < mRefreshViewHeight + 20
                         && mRefreshState != PULL_TO_REFRESH) {
-                    mRefreshViewText.setText("Add new item");
+                    mRefreshViewText.setText("Pull to add new item");
                     if (mRefreshState != TAP_TO_REFRESH) {
                         mRefreshViewImage.clearAnimation();
                         mRefreshViewImage.startAnimation(mReverseFlipAnimation);
@@ -334,30 +337,34 @@ public class EnhancedListView extends ListView implements AbsListView.OnScrollLi
         mRefreshViewProgress.setVisibility(View.VISIBLE);
 
         // Set refresh view text to the refreshing label
-        mRefreshViewText.setText("poll to rofrosh");
+        mRefreshViewText.setText("Prepare for new item...");
 
         mRefreshState = REFRESHING;
 
 
+        String[] arrayS = { "One", "Two", "Three", "Four", "Five", "Six", "Seven",
+                "Eight", "Nine", "Ten" };
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(),
+                android.R.layout.select_dialog_item, arrayS);
+
         AlertDialog.Builder newItemDialog = new AlertDialog.Builder(getContext());
         newItemDialog.setTitle("Add item");
-        final EditText input = new EditText(getContext());
+        //final EditText input = new EditText(getContext());
+        final AutoCompleteTextView input = new AutoCompleteTextView(getContext());
+        input.setThreshold(1);
+        input.setAdapter(adapter);
+
         newItemDialog.setView(input);
         newItemDialog
-                .setMessage("Add new item")
                 .setCancelable(true)
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        // if this button is clicked, just close
-                        // the dialog box and do nothing
                         dialog.cancel();
                         onRefreshComplete();
                     }
                 })
                 .setPositiveButton("Add", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        // if this button is clicked, close
-                        // current activity
                         dialog.cancel();
                         Addable addable = mAddCallback.onAdd(EnhancedListView.this, input.getText().toString());
                         onRefreshComplete();
@@ -365,6 +372,7 @@ public class EnhancedListView extends ListView implements AbsListView.OnScrollLi
                 });
 
         AlertDialog alertDialog = newItemDialog.create();
+        alertDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         alertDialog.show();
 
     }
